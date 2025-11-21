@@ -9,7 +9,7 @@ api_key = input("Enter your Google Gemini API Key: ").strip()
 genai.configure(api_key=api_key)
 
 # Select the model
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 def preprocess_input(text):
     """
@@ -58,4 +58,5 @@ def main():
             print(f"Error: {e}")
 
 if __name__ == "__main__":
+
     main()
