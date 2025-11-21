@@ -27,7 +27,7 @@ def index():
             try:
                 # 1. Configure API
                 genai.configure(api_key=api_key)
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                model = genai.GenerativeModel('gemini-2.5-flash')
 
                 # 2. Preprocess
                 cleaned_text, tokens = preprocess_text(user_question)
@@ -49,4 +49,5 @@ def index():
 
 if __name__ == '__main__':
     # Run locally
+
     app.run(debug=True)
