@@ -1,11 +1,10 @@
-import streamlit as st
-import re
+from flask import Flask, render_template, request
 import google.generativeai as genai
+import re
+import os
 
-# --- PAGE CONFIG ---
-st.set_page_config(page_title="NLP Q&A System", page_icon="🤖")
+app = Flask(__name__)
 
-# --- PREPROCESSING FUNCTION ---
 def preprocess_text(text):
     """Applies lowercasing, punctuation removal, and tokenization."""
     text_lower = text.lower()
@@ -13,50 +12,41 @@ def preprocess_text(text):
     tokens = text_clean.split()
     return text_clean, tokens
 
-# --- SIDEBAR FOR CONFIG ---
-st.sidebar.header("Configuration")
-api_key = st.sidebar.text_input("Enter Google API Key", type="password")
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    context = {}
+    
+    if request.method == 'POST':
+        # Get data from the HTML form
+        api_key = request.form.get('api_key')
+        user_question = request.form.get('question')
 
-# --- MAIN UI ---
-st.title("🤖 NLP Q&A System")
-st.markdown("Ask a question, view the preprocessing, and get an answer from the LLM.")
+        if not api_key or not user_question:
+            context['error'] = "Please provide both an API Key and a Question."
+        else:
+            try:
+                # 1. Configure API
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-1.5-flash')
 
-# User Input
-user_question = st.text_area("Enter your question here:", height=100)
+                # 2. Preprocess
+                cleaned_text, tokens = preprocess_text(user_question)
 
-if st.button("Get Answer"):
-    if not api_key:
-        st.error("Please enter an API Key in the sidebar.")
-    elif not user_question:
-        st.warning("Please enter a question.")
-    else:
-        try:
-            # 1. Configure API
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-
-            # 2. Preprocess
-            cleaned_text, tokens = preprocess_text(user_question)
-
-            # 3. Display Preprocessing Results (Requirement)
-            st.divider()
-            col1, col2 = st.columns(2)
-            with col1:
-                st.info("🔤 Processed Text (Cleaned)")
-                st.write(cleaned_text)
-            with col2:
-                st.info("🧩 Tokens")
-                st.write(tokens)
-
-            # 4. Get Response
-            with st.spinner("Consulting the LLM..."):
+                # 3. Get Response from LLM
                 response = model.generate_content(cleaned_text)
                 answer = response.text
 
-            # 5. Display Answer
-            st.divider()
-            st.success("💡 LLM Answer")
-            st.write(answer)
+                # 4. Save results to context to display in HTML
+                context['original_question'] = user_question
+                context['cleaned_text'] = cleaned_text
+                context['tokens'] = tokens
+                context['answer'] = answer
 
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+            except Exception as e:
+                context['error'] = f"An error occurred: {e}"
+
+    return render_template('index.html', **context)
+
+if __name__ == '__main__':
+    # Run locally
+    app.run(debug=True)
