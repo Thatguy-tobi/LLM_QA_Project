@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP Q&A System</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        .container { background-color: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; }
+        label { font-weight: bold; display: block; margin-top: 15px; }
+        input[type="text"], input[type="password"], textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { display: block; width: 100%; background-color: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; margin-top: 20px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        .result-box { background-color: white; border: 1px solid #ddd; padding: 15px; margin-top: 20px; border-radius: 4px; }
+        .tokens { font-family: monospace; background-color: #eee; padding: 2px 4px; border-radius: 3px; }
+        .error { color: red; background-color: #ffe6e6; padding: 10px; border-radius: 4px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 NLP Q&A System</h1>
+        
+        <form method="POST">
+            <label for="api_key">Google Gemini API Key:</label>
+            <input type="password" id="api_key" name="api_key" placeholder="Enter your API Key..." required>
+
+            <label for="question">Your Question:</label>
+            <textarea id="question" name="question" rows="4" placeholder="Type your question here..." required></textarea>
+
+            <button type="submit">Get Answer</button>
+        </form>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        {% if answer %}
+        <div class="result-box">
+            <h3>📝 Preprocessing Results</h3>
+            <p><strong>Cleaned Text:</strong> {{ cleaned_text }}</p>
+            <p><strong>Tokens:</strong> <span class="tokens">{{ tokens }}</span></p>
+            <hr>
+            <h3>💡 LLM Answer</h3>
+            <p>{{ answer }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
